@@ -1,8 +1,8 @@
-### Deel Analytics Engineering Assignment
+# Deel Analytics Engineering Assignment
 
-# Assignment description:
+### Assignment description
 
-Business Context
+#### Business Context
 Deel clients can add funds to their Deel account using their credit and debit cards. Deel has
 partnered with Globepay to process all of these account funding credit and debit card
 transactions. Globepay is an industry-leading global payment processor and is able to process
@@ -16,7 +16,10 @@ Assignment
 A Data Analyst at Deel has submitted a request for you to create a model to answer a few
 questions about payments. Three files have been provided in the request (attached to this
 document as files.zip) - however, no schema specifications were given.
-Part 1
+
+### Solutions
+
+#### Part 1
 For the first part of the challenge, please ingest and model the source data — try following the
 dbt modeling standards ⭐ .
 1. Please include a document with information around:
