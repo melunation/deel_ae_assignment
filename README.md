@@ -22,13 +22,24 @@ document as files.zip) - however, no schema specifications were given.
 #### Part 1
 For the first part of the challenge, please ingest and model the source data — try following the
 dbt modeling standards ⭐ .
-1. Please include a document with information around:
-1. Preliminary data exploration
-2. Summary of your model architecture
-3. Lineage graphs
-4. Tips around macros, data validation, and documentation
 
-Part 2
+##### 1. Preliminary data exploration
+  We're working with Globepay API data, and based on the specifications html we can say that the API would actually return both tables into one. So most likely these tables have been broken for the assignment in order to force a join to be performed.
+By ingesting the data and applying some basic tests, we can confirm that there are no nulls or duplicates in the primary (`ref`) or in the foreign keys (`external_ref`). As an interesting catch, we find 1 transaction in the acceptance source data that has an amount smaller than 0. This could be Deel refunding an amount to a client, an error in processing...
+##### 2. Summary of your model architecture
+The designed architecture is pretty straightforward:
+  1. Staging layer where we ingest the data (that has been loaded into our database using the `dbt seed` command, adding the csv files under the `seed` folder) and apply basic transformations to it. These can include castings to make sure our data is in the desired format, cleaning of columns that might have things we don't want, and operations to create new columns that will be used downstream.
+  2. Transforming layer where we apply the transformations needed to build the logic of our models. This can include joins and the use of more complex functions, as well as the addition of business logic.
+  3. Datamart layer where we either expose the data we have created in transforming (in case there are no transformations being done, we can do it through a view to make sure we're not duplicating a table in the DWH). We can also create aggregations of the data existing in the transforming layer in a cube format, depending on the business requirements and the granularity of the data needed for reporting.
+##### 3. Lineage graphs
+  This lineage has been created using commands `dbt docs generate` and `dbt docs serve`
+  <img width="1625" alt="image" src="https://github.com/user-attachments/assets/6574479c-4826-48e2-8807-ac0ad3393ac9">
+
+##### 4. Tips around macros, data validation, and documentation
+  - Macros: Since this exercise was fairly simple in terms of available data, there was not the need to develop any macros. These should be created when a piece of code is going to be reused many times, which will allow us to just call the macro and not have to repeat that piece of code everywhere. It is also great since if we need to do some changes, updating the macro will update it everywhere (and if we didn't develop a macro we would have to change all of those instances one by one). Maybe we could have created a macro for the exchange rate if we had used a different approach, but it wasn't needed here.
+  - Data validation: dbt offers powerful tests to validate the data we're dealing with. The basics here would be making sure that keys don't have nulls and are unique, which can be applied to any other field that requires it. We can also do other kinds of checks, like making sure an end date is after a start date, amounts are between a certain range, or the values of the column stay within the expected values. These tests allow for quick and easy data validation, and it makes much easier and quicker address and fix the potential issues.
+  - Documentation: Documentation can be added as part of the yml file, which then can be exposed to some external tools to allow business to check definitions. This is a really important part of a good DWH since it will allow external people to it understand what each table and field is, and the transformations that have been done around it, without having to reach out to the creator of the model.
+#### Part 2
 For the second part of the challenge, please develop a production version of the model for the
 Data Analyst to utilize. This model should be able to answer these three questions at a
 minimum:
@@ -38,4 +49,8 @@ minimum:
 In addition to presenting the model, please provide the code (pseudo-code also suffices) for
 answering these questions. Feel free to provide the code, the actual answers, a brief description
 for the analyst, and any charts or images to help with the explanation.
+
+##### 1. What is the acceptance rate over time?
+##### 2. List the countries where the amount of declined transactions went over $25M
+##### 3. Which transactions are missing chargeback data?
 
