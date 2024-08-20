@@ -41,7 +41,11 @@ The designed architecture is pretty straightforward:
   - Documentation: Documentation can be added as part of the yml file, which then can be exposed to some external tools to allow business to check definitions. This is a really important part of a good DWH since it will allow external people to it understand what each table and field is, and the transformations that have been done around it, without having to reach out to the creator of the model.
 #### Part 2
 For the second part of the challenge, please develop a production version of the model for the
-Data Analyst to utilize. This model should be able to answer these three questions at a
+Data Analyst to utilize. 
+
+#### Here, I would like to mention that even the requirement asks for one model, I have developed two to show two different approaches that could work for this problem. I think the preference to use one or the other would be different based on the requirements the Data Analyst has, so if this was my job I would discuss with him what he needs / prefers and provide the most ideal model based on this.
+
+This model should be able to answer these three questions at a
 minimum:
 1. What is the acceptance rate over time?
 2. List the countries where the amount of declined transactions went over $25M
