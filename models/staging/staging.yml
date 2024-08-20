@@ -1,0 +1,55 @@
+version: 2
+
+sources:
+  - name: source
+    database: deel_assignment
+    schema: public_source
+    tables:
+      - name: acceptance_data
+      - name: chargeback_data
+
+models:
+  - name: stg_acceptance
+    description: Model to import data from Globalpay API. We clean, cast and and apply basic transformations to the data.
+    columns:
+      - name: ref
+        tests:
+          - not_null
+          - unique
+      - name: external_ref
+        tests:
+          - not_null
+          - unique
+      - name: status
+      - name: source
+        tests:
+          - not_null
+      - name: state
+      - name: cvv_provided
+      - name: country
+      - name: local_currency
+        tests:
+          - not_null
+      - name: rates
+        tests:
+          - not_null
+      - name: local_amount
+        tests:
+          - not_null
+      - name: usd_amount
+        tests:
+          - not_null
+      - name: date_time
+
+  - name: stg_chargeback
+    description: Model that flags if a certain transaction has had a chargeback or not. We cast the data to the correct types.
+    columns:
+      - name: external_ref
+        tests:
+          - not_null
+          - unique
+      - name: status
+      - name: source
+      - name: chargeback
+        tests:
+          - not_null
