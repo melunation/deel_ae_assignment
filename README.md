@@ -46,11 +46,6 @@ The designed architecture is pretty straightforward:
 For the second part of the challenge, please develop a production version of the model for the
 Data Analyst to utilize. 
 
-Here, I would like to mention that even the requirement asks for one model, I think there are two different approaches that could work to answer the questions listed below. I think the preference to use one or the other would be different based on the requirements the Data Analyst has, so if this was my job I would discuss with him what he needs / prefers and provide the most ideal model based on this. The options would be:
-  1. A non aggregated model with transaction granularity (one per row). Aggregations could be performed on top of this in the BI tool. This model would be `transactions` in the datamart layer.
-  2. An aggregated model that is still able to answer the questions, like the one developed, `transactions_cube`, in the datamart layer.
-I will use the aggregated one to answer the questions.
-
 This model should be able to answer these three questions at a
 minimum:
 1. What is the acceptance rate over time?
@@ -61,6 +56,10 @@ answering these questions. Feel free to provide the code, the actual answers, a 
 for the analyst, and any charts or images to help with the explanation.
 
 ##### Model being used
+  Here, I would like to mention that even the requirement asks for one model, I think there are two different approaches that could work to answer the questions listed below. I think the preference to use one or the other would be different based on the requirements the Data Analyst has, so if this was my job I would discuss with him what he needs / prefers and provide the most ideal model based on this. The options would be:
+  1. A non aggregated model with transaction granularity (one per row). Aggregations could be performed on top of this in the BI tool. This model would be `transactions` in the datamart layer.
+  2. An aggregated model that is still able to answer the questions, like the one developed, `transactions_cube`, in the datamart layer.
+
   For this I am going to used the aggregated model, `transactions_cube`. This model aggregates the data at a daily and country level, allowing us to obtain all of the data we need at this granularity, as well as increasing the granularity to greater time dimensions if needed. For the acceptance rate, it is needed to have two columns so that we can aggregate: one with the number of accepted transactions and one with the number of rejected transactions. The model has the following columns:
   - date: Time dimension, at a day level
   - country: Country of the transaction
