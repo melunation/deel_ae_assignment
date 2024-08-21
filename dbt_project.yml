@@ -38,9 +38,9 @@ models:
       transformation:
         schema: transformation
         materialized: table
-      analytics:
-        schema: analytics
-        materialized: view
+      datamart:
+        schema: datamart
+        materialized: table
 
 seeds:
   dbt_deel:

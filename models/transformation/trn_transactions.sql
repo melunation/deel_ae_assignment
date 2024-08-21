@@ -2,6 +2,7 @@ with acceptance as (
     select
         ref,
         external_ref,
+        accepted,
         country,
         local_currency,
         local_amount,
@@ -20,6 +21,7 @@ chargeback as (
 final as (
     select
         acceptance.ref,
+        acceptance.accepted,
         chargeback.chargeback,
         acceptance.date_time,
         acceptance.country,
