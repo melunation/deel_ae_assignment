@@ -30,14 +30,9 @@ By ingesting the data and applying some basic tests, we can confirm that there a
   As an interesting catch, we find 1 transaction in the acceptance source data that has an amount smaller than 0. This could be Deel refunding an amount to a client, an error in processing... since I do not know if this is acceptable from a business point of view, I have flagged this in tests as a warn so that dbt raises this when running.
 ##### 2. Summary of your model architecture
 The designed architecture is pretty straightforward:
-  1. Staging layer where we ingest the data (that has been loaded into our database using the `dbt seed` command, adding the csv files under the `seed` folder) and apply basic transformations to it. These can include castings to make sure our data is in the desired format, cleaning of columns that might have things we don't want, and operations to create new columns that will be used downstream. The models in here are:
-    a. `stg_acceptance`
-    b. `stg_chargeback`
-  3. Transforming layer where we apply the transformations needed to build the logic of our models. This can include joins and the use of more complex functions, as well as the addition of business logic. The model here is:
-    a. `trn_transformation`
-  5. Datamart layer where we either expose the data we have created in transforming (in case there are no transformations being done, we can do it through a view to make sure we're not duplicating a table in the DWH). We can also create aggregations of the data existing in the transforming layer in a cube format, depending on the business requirements and the granularity of the data needed for reporting. The models here are:
-    a. `transactions_cube`
-    b. `transactions` -> We materialize this one as a view, since it is just a select all from the model in the transformation layer.
+  1. Staging layer where we ingest the data (that has been loaded into our database using the `dbt seed` command, adding the csv files under the `seed` folder) and apply basic transformations to it. These can include castings to make sure our data is in the desired format, cleaning of columns that might have things we don't want, and operations to create new columns that will be used downstream. The models in here are `stg_acceptance` and `stg_chargeback`.
+  3. Transforming layer where we apply the transformations needed to build the logic of our models. This can include joins and the use of more complex functions, as well as the addition of business logic. The model here is `trn_transformation`
+  5. Datamart layer where we either expose the data we have created in transforming (in case there are no transformations being done, we can do it through a view to make sure we're not duplicating a table in the DWH). We can also create aggregations of the data existing in the transforming layer in a cube format, depending on the business requirements and the granularity of the data needed for reporting. The models here are `transactions_cube` and `transactions`. We materialize this last oneone as a view, since it is just a select all from the model in the transformation layer and we don't need it to occupy storage in our database.
 ##### 3. Lineage graphs
   This lineage has been created using commands `dbt docs generate` and `dbt docs serve`. In green we can see the seeds, where we added the csvs provided, and in blue we can see the models stated in the section above.
   <img width="1625" alt="image" src="https://github.com/user-attachments/assets/6574479c-4826-48e2-8807-ac0ad3393ac9">
@@ -46,11 +41,12 @@ The designed architecture is pretty straightforward:
   - Macros: Since this exercise was fairly simple in terms of available data, there was not the need to develop any macros. These should be created when a piece of code is going to be reused many times, which will allow us to just call the macro and not have to repeat that piece of code everywhere. It is also great since if we need to do some changes, updating the macro will update it everywhere (and if we didn't develop a macro we would have to change all of those instances one by one). Maybe we could have created a macro for the exchange rate if we had used a different approach, but it wasn't needed here.
   - Data validation: dbt offers powerful tests to validate the data we're dealing with. The basics here would be making sure that keys don't have nulls and are unique, which can be applied to any other field that requires it. We can also do other kinds of checks, like making sure an end date is after a start date, amounts are between a certain range, or the values of the column stay within the expected values. These tests allow for quick and easy data validation, and it makes much easier and quicker address and fix the potential issues.
   - Documentation: Documentation can be added as part of the yml file, which then can be exposed to some external tools to allow business to check definitions. This is a really important part of a good DWH since it will allow external people to it understand what each table and field is, and the transformations that have been done around it, without having to reach out to the creator of the model.
+  - 
 #### Part 2
 For the second part of the challenge, please develop a production version of the model for the
 Data Analyst to utilize. 
 
-#### Here, I would like to mention that even the requirement asks for one model, I have developed two to show two different approaches that could work for this problem. I think the preference to use one or the other would be different based on the requirements the Data Analyst has, so if this was my job I would discuss with him what he needs / prefers and provide the most ideal model based on this.
+#### Here, I would like to mention that even the requirement asks for one model, I have developed two to show two different approaches that could work to answer the questions listed below. I think the preference to use one or the other would be different based on the requirements the Data Analyst has, so if this was my job I would discuss with him what he needs / prefers and provide the most ideal model based on this. I will use the aggregated one to answer the questions.
 
 This model should be able to answer these three questions at a
 minimum:
