@@ -24,10 +24,11 @@ For the first part of the challenge, please ingest and model the source data —
 dbt modeling standards ⭐ .
 
 ##### 1. Preliminary data exploration
-  We're working with Globepay API data, and based on the specifications html we can say that the API would actually return one table instead of two. So most likely these tables have been broken for the assignment in order to force a join to be performed.
-By ingesting the data and applying some basic tests, we can confirm that there are no nulls or duplicates in the primary (`ref`) or in the foreign keys (`external_ref`). 
-
-  As an interesting catch, we find 1 transaction in the acceptance source data that has an amount smaller than 0. This could be Deel refunding an amount to a client, an error in processing... since I do not know if this is acceptable from a business point of view, I have flagged this in tests as a warn so that dbt raises this when running.
+  We're working with Globepay API data, and based on the specifications html we can say that the API would actually return one table instead of two. So most likely these tables have been broken for the assignment in order to force a join to be performed. By ingesting the data and applying some basic tests, we can find some observations:
+  - There are no nulls or duplicates in the primary (`ref`) or in the foreign keys (`external_ref`). 
+  - We find 1 transaction in the acceptance source data that has an amount smaller than 0. This could be Deel refunding an amount to a client, an error in processing... since I do not know if this is acceptable from a business point of view, I have flagged this in tests as a warn so that dbt raises this when running.
+  - All of the data is from 2019
+    
 ##### 2. Summary of your model architecture
 The designed architecture is pretty straightforward:
   1. Staging layer where we ingest the data (that has been loaded into our database using the `dbt seed` command, adding the csv files under the `seed` folder) and apply basic transformations to it. These can include castings to make sure our data is in the desired format, cleaning of columns that might have things we don't want, and operations to create new columns that will be used downstream. The models in here are `stg_acceptance` and `stg_chargeback`.
