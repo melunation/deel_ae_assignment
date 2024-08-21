@@ -24,7 +24,7 @@ For the first part of the challenge, please ingest and model the source data —
 dbt modeling standards ⭐ .
 
 ##### 1. Preliminary data exploration
-  We're working with Globepay API data, and based on the specifications html we can say that the API would actually return both tables into one. So most likely these tables have been broken for the assignment in order to force a join to be performed.
+  We're working with Globepay API data, and based on the specifications html we can say that the API would actually return one table instead of two. So most likely these tables have been broken for the assignment in order to force a join to be performed.
 By ingesting the data and applying some basic tests, we can confirm that there are no nulls or duplicates in the primary (`ref`) or in the foreign keys (`external_ref`). 
 
   As an interesting catch, we find 1 transaction in the acceptance source data that has an amount smaller than 0. This could be Deel refunding an amount to a client, an error in processing... since I do not know if this is acceptable from a business point of view, I have flagged this in tests as a warn so that dbt raises this when running.
