@@ -28,11 +28,16 @@ dbt modeling standards ⭐ .
 By ingesting the data and applying some basic tests, we can confirm that there are no nulls or duplicates in the primary (`ref`) or in the foreign keys (`external_ref`). As an interesting catch, we find 1 transaction in the acceptance source data that has an amount smaller than 0. This could be Deel refunding an amount to a client, an error in processing...
 ##### 2. Summary of your model architecture
 The designed architecture is pretty straightforward:
-  1. Staging layer where we ingest the data (that has been loaded into our database using the `dbt seed` command, adding the csv files under the `seed` folder) and apply basic transformations to it. These can include castings to make sure our data is in the desired format, cleaning of columns that might have things we don't want, and operations to create new columns that will be used downstream.
-  2. Transforming layer where we apply the transformations needed to build the logic of our models. This can include joins and the use of more complex functions, as well as the addition of business logic.
-  3. Datamart layer where we either expose the data we have created in transforming (in case there are no transformations being done, we can do it through a view to make sure we're not duplicating a table in the DWH). We can also create aggregations of the data existing in the transforming layer in a cube format, depending on the business requirements and the granularity of the data needed for reporting.
+  1. Staging layer where we ingest the data (that has been loaded into our database using the `dbt seed` command, adding the csv files under the `seed` folder) and apply basic transformations to it. These can include castings to make sure our data is in the desired format, cleaning of columns that might have things we don't want, and operations to create new columns that will be used downstream. The models in here are:
+    a. `stg_acceptance`
+    b. `stg_chargeback`
+  3. Transforming layer where we apply the transformations needed to build the logic of our models. This can include joins and the use of more complex functions, as well as the addition of business logic. The model here is:
+    a. `trn_transformation`
+  5. Datamart layer where we either expose the data we have created in transforming (in case there are no transformations being done, we can do it through a view to make sure we're not duplicating a table in the DWH). We can also create aggregations of the data existing in the transforming layer in a cube format, depending on the business requirements and the granularity of the data needed for reporting. The models here are:
+    a. `transactions_cube`
+    b. `transactions`
 ##### 3. Lineage graphs
-  This lineage has been created using commands `dbt docs generate` and `dbt docs serve`
+  This lineage has been created using commands `dbt docs generate` and `dbt docs serve`. In green we can see the seeds, where we added the csvs provided, and in blue we can see the models stated in the section above.
   <img width="1625" alt="image" src="https://github.com/user-attachments/assets/6574479c-4826-48e2-8807-ac0ad3393ac9">
 
 ##### 4. Tips around macros, data validation, and documentation
@@ -54,7 +59,47 @@ In addition to presenting the model, please provide the code (pseudo-code also s
 answering these questions. Feel free to provide the code, the actual answers, a brief description
 for the analyst, and any charts or images to help with the explanation.
 
+##### Model being used
+  For this I am going to used the aggregated model, `transactions_cube`. This model aggregates the data at a daily and country level, allowing us to obtain all of the data we need at this granularity, as well as increasing the granularity to greater time dimensions if needed. For the acceptance rate, it is needed to have two columns so that we can aggregate: one with the number of accepted transactions and one with the number of rejected transactions. The model has the following columns:
+  - date: Time dimension, at a day level
+  - country: Country of the transaction
+  - accepted_transactions: Number of transactions accepted in the day and country.
+  - total_transactions: Total number of transactions, accepted or rejected, in the day and country.
+  - total_usd_amount_accepted: Total USD amount of the accepted transactions.
+  - total_usd_amount_declined: Total USD amount of the declined transactions.
+  - total_usd_amount: Total USD amount of all the transactions.
+  - transactions_without_chargeback: Array containing the ref of the transactions that had `chargeback = false` in that day and country.
+  - unique_key: Key created through dbt to ensure uniqueness of the desired granularity.
+  <img width="1246" alt="image" src="https://github.com/user-attachments/assets/1add2f64-fa75-47eb-8658-b16dde3a9766">
+
+
 ##### 1. What is the acceptance rate over time?
+  The acceptance rate can be calculated at any time dimension (day, week, month, quarter, year) since we have the lowest date granularity (day) and we can aggregate by summing the accepted transactions and divide it by the sum of the total transactions. It would not be possible to offer a direct acceptance result at the daily level because then aggregation would not be possible at higher levels.
+  ```
+    select
+      date_trunc('year',date) as date,
+      sum(accepted_transactions) / sum(total_transactions) as acceptance_rate
+    from transactions_cube
+    group by 1
+  ```
+  The answer would depend on the granularity of the business requirement, but if we look at it at a yearly level the results would be a 69.56%
+  <img width="330" alt="image" src="https://github.com/user-attachments/assets/b4d7ad38-641d-4e23-9328-5253894efb9b">
+
 ##### 2. List the countries where the amount of declined transactions went over $25M
+  We just select distinct countries where the sum of the declined transactions amount is over 25M. We can do this directly using a having clause
+```
+    select distinct
+      country
+    from transactions_cube
+    group by 1
+    having sum(total_usd_amount_declined) > 25000000
+  ```
+  The countries are:
+<img width="165" alt="image" src="https://github.com/user-attachments/assets/ff6a2494-dedb-4ffc-88d8-93858dd7c82e">
+
 ##### 3. Which transactions are missing chargeback data?
+  There's two ways to understand this: either "missing chargeback data" means that there is no chargeback data available for that transaction (meaning the acceptance table would not find a match in the chargeback table when joining), or that the transaction has chargeback = false. Since I explored the data and saw that all of the transactions join with the data in chargeback, I will assume the question being asked is the second one: number of transactions with chargeback data = false.
+  In this case the analyst could just select the column `transactions_without_chargeback` and flatten it to get a list of the transaction refs that did not have chargeback data (using the aggregated model)
+  If the analyst preference and/or the business requirements would be to not have an aggregated table, selecting the ref column where chargeback is not true would be enough to get this answer.
+  Of course time dimensions can be added to filter the transactions without chargeback in a specific time frame.
 
