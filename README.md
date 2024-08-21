@@ -56,7 +56,7 @@ In addition to presenting the model, please provide the code (pseudo-code also s
 answering these questions. Feel free to provide the code, the actual answers, a brief description
 for the analyst, and any charts or images to help with the explanation.
 
-##### Model being used
+#### Model being used
   Here, I would like to mention that even the requirement asks for one model, I think there are two different approaches that could work to answer the questions listed below. I think the preference to use one or the other would be different based on the requirements the Data Analyst has, so if this was my job I would discuss with him what he needs / prefers and provide the most ideal model based on this. The options would be:
   1. A non aggregated model with transaction granularity (one per row). Aggregations could be performed on top of this in the BI tool. This model would be `transactions` in the datamart layer.
   2. An aggregated model that is still able to answer the questions, like the one developed, `transactions_cube`, in the datamart layer.
