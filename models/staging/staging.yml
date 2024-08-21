@@ -36,9 +36,17 @@ models:
       - name: local_amount
         tests:
           - not_null
+          - dbt_utils.expression_is_true:
+              expression: ">=0"
+              config:
+                severity: warn
       - name: usd_amount
         tests:
           - not_null
+          - dbt_utils.expression_is_true:
+              expression: ">=0"
+              config:
+                severity: warn
       - name: date_time
 
   - name: stg_chargeback

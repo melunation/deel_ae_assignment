@@ -1,2 +1,18 @@
 models:
     - name: transactions
+      description: Output model without any kind of aggregation. Granularity is at the transaction level, so analyst can easily find the transactions with chargeback and report them.
+      columns:
+      - name: ref
+        tests:
+          - not_null
+          - unique
+
+    - name: transactions_cube
+      description: Output model aggregated at the daily and country level. Transactions with chargeback that happened in that day/country are added into an array, so analysts could also report them based on this.
+      columns:
+      - name: unique_key
+        tests:
+          - not_null
+          - unique
+        
+    

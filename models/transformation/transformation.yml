@@ -1,2 +1,8 @@
 models:
     - name: trn_transactions
+      description: Model that joins the acceptance and chargeback tables to be able to flag which transactions have had chargeback.
+      columns:
+      - name: ref
+        tests:
+          - not_null
+          - unique
